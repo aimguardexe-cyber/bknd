@@ -1,0 +1,383 @@
+{
+  "info": {
+    "name": "License Management System API",
+    "description": "Complete API collection for testing the License Management & Reseller System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "app_id",
+      "value": ""
+    },
+    {
+      "key": "license_id",
+      "value": ""
+    },
+    {
+      "key": "reseller_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const responseJson = pm.response.json();",
+                  "  pm.collectionVariables.set('auth_token', responseJson.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Apps",
+      "item": [
+        {
+          "name": "Create App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My First App\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/apps",
+              "host": ["{{base_url}}"],
+              "path": ["apps"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const responseJson = pm.response.json();",
+                  "  pm.collectionVariables.set('app_id', responseJson.data.app._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Apps",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps",
+              "host": ["{{base_url}}"],
+              "path": ["apps"]
+            }
+          }
+        },
+        {
+          "name": "Get Single App",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/{{app_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["apps", "{{app_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update App",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated App Name\",\n  \"version\": \"1.1.0\",\n  \"settings\": {\n    \"hwidLock\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/apps/{{app_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["apps", "{{app_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Error Messages",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyNotFound\": \"Custom message: Invalid license key\",\n  \"usernameTaken\": \"Custom message: Username already exists\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/apps/{{app_id}}/error-messages",
+              "host": ["{{base_url}}"],
+              "path": ["apps", "{{app_id}}", "error-messages"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Licenses",
+      "item": [
+        {
+          "name": "Create License",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app\": \"{{app_id}}\",\n  \"expiresAt\": \"2024-12-31T23:59:59.000Z\",\n  \"note\": \"Test license\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/licenses",
+              "host": ["{{base_url}}"],
+              "path": ["licenses"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const responseJson = pm.response.json();",
+                  "  pm.collectionVariables.set('license_id', responseJson.data.license._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Licenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/licenses",
+              "host": ["{{base_url}}"],
+              "path": ["licenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Single License",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/licenses/{{license_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["licenses", "{{license_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Ban/Unban License",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/licenses/{{license_id}}/toggle-ban",
+              "host": ["{{base_url}}"],
+              "path": ["licenses", "{{license_id}}", "toggle-ban"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Client Operations",
+      "item": [
+        {
+          "name": "Client Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"licenseKey\": \"REPLACE_WITH_ACTUAL_LICENSE_KEY\",\n  \"hwid\": \"unique-hardware-id\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/register",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "register"]
+            }
+          }
+        },
+        {
+          "name": "Client Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"hwid\": \"unique-hardware-id\",\n  \"appId\": \"REPLACE_WITH_ACTUAL_APP_ID\",\n  \"appSecret\": \"REPLACE_WITH_ACTUAL_APP_SECRET\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/login",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Pricing",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/pricing",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "pricing"]
+            }
+          }
+        },
+        {
+          "name": "Create Razorpay Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/razorpay/create-order",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "razorpay", "create-order"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}
